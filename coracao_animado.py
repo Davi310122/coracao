@@ -1,74 +1,86 @@
-"""
-CORAÇÃO ANIMADO - Versão PC para Visualização Mobile
-Autor: [Seu Nome]
-Descrição: Código desenvolvido no VS Code PC, mas otimizado para ficar perfeito em dispositivos móveis
-"""
-
 import turtle
 import math
 import time
 
-# ============= CONFIGURAÇÕES VISUAIS =============
-def configurar_tela():
-    """Prepara a janela com dimensões ideais para mobile"""
-    screen = turtle.Screen()
-    screen.setup(width=360, height=640)  # Proporção de celular (9:16)
-    screen.bgcolor('#0a0a0a')  # Preto levemente acinzentado
-    screen.title("❤️ Coração Animado ❤️")
-    screen.tracer(0)  # Desativa atualização automática para melhor performance
-    return screen
+# Configuração inicial otimizada
+screen = turtle.Screen()
+screen.setup(width=360, height=640)  # Proporção mobile
+screen.bgcolor("#f5f5f5")
+screen.title("❤️ Coração Completo a Lápis ❤️")
+screen.tracer(0)  # Melhora performance
 
-def configurar_caneta():
-    """Configura o objeto turtle para desenho suave"""
-    t = turtle.Turtle()
-    t.hideturtle()
-    t.speed(0)
-    t.pensize(3)
-    t.color('#ff3366')  # Rosa-vermelho vibrante
-    return t
+# Cria o lápis
+pencil = turtle.Turtle()
+pencil.speed(0)
+pencil.color("#ff3366")  # Vermelho vibrante
+pencil.pensize(3)
+pencil.hideturtle()
 
-# ============= CÁLCULO DO CORAÇÃO =============
-def calcular_ponto(angulo_rad):
-    """Calcula as coordenadas x,y usando equação paramétrica otimizada"""
-    seno = math.sin(angulo_rad)
-    cosseno = math.cos(angulo_rad)
-    
-    x = 15 * (seno ** 3)
-    y = 12 * cosseno - 4 * math.cos(2*angulo_rad) - 2 * math.cos(3*angulo_rad) - math.cos(4*angulo_rad)
-    
-    return x * 10, y * 10  # Aumenta o tamanho
+# Cria um segundo turtle para o preenchimento
+fill = turtle.Turtle()
+fill.speed(0)
+fill.color("#ff3366")
+fill.pensize(1)
+fill.hideturtle()
+fill.begin_fill()  # Começa o preenchimento
 
-# ============= ANIMAÇÃO PRINCIPAL =============
-def animar_coracao():
-    """Controla o fluxo da animação com efeitos suaves"""
-    screen = configurar_tela()
-    t = configurar_caneta()
-    
-    try:
-        for frame in range(150):  # 150 frames de animação
-            t.clear()
-            
-            # Calcula um fator de escala pulsante
-            pulsacao = 0.8 + 0.2 * math.sin(frame * 0.1)
-            
-            # Desenha o coração
-            t.begin_fill()
-            for angulo in range(0, 628, 15):  # 6.28 radianos (360°)
-                x, y = calcular_ponto(angulo/100)
-                t.goto(x * pulsacao, y * pulsacao)
-                if angulo == 0:
-                    t.pendown()
-            t.end_fill()
-            
-            # Atualiza a tela de forma otimizada
-            screen.update()
-            time.sleep(0.05)  # Controla a velocidade
-            
-    except turtle.Terminator:
-        pass  # Permite fechar a janela sem erros
-    
-    screen.mainloop()
+# Cursor em forma de lápis
+screen.register_shape("pencil", ((-3,0), (0,8), (3,0)))
+pencil.shape("pencil")
+pencil.showturtle()
 
-# ============= EXECUÇÃO =============
-if __name__ == "__main__":
-    animar_coracao()
+# Fórmula do coração otimizada
+def heart_pos(t):
+    x = 15 * (math.sin(t)**3)
+    y = 12*math.cos(t) - 4*math.cos(2*t) - 2*math.cos(3*t) - math.cos(4*t)
+    return x*10, y*10
+
+# Animação principal
+try:
+    pencil.penup()
+    fill.penup()
+    
+    # Primeiro ponto
+    x, y = heart_pos(0)
+    pencil.goto(x, y)
+    fill.goto(x, y)
+    pencil.pendown()
+    fill.pendown()
+    
+    for i in range(0, 630, 3):  # Passo maior = melhor performance
+        t = i/100
+        x, y = heart_pos(t)
+        
+        # Move o lápis
+        pencil.goto(x, y)
+        
+        # Move o preenchimento
+        fill.goto(x, y)
+        
+        # Atualiza ângulo do lápis
+        if i < 627:
+            next_x, next_y = heart_pos((i+3)/100)
+            angle = math.degrees(math.atan2(next_y-y, next_x-x))
+            pencil.setheading(angle)
+        
+        screen.update()
+        time.sleep(0.02)  # Controla velocidade
+    
+    # Completa o preenchimento
+    fill.end_fill()
+    
+    # Efeito final
+    for _ in range(2):
+        pencil.color("#ff9999")
+        fill.color("#ff9999")
+        screen.update()
+        time.sleep(0.15)
+        pencil.color("#ff3366")
+        fill.color("#ff3366")
+        screen.update()
+        time.sleep(0.15)
+
+except:
+    pass
+
+screen.mainloop()
